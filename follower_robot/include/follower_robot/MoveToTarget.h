@@ -28,7 +28,7 @@ public:
     void result_callback(
         const rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::WrappedResult &result);
 
-    //You will implement this.
+    //You will implement this. // TODO:
     void copyToGoalPoseAndSend(Eigen::MatrixXd &goal_pose_relative_to_base_link);
 
 protected:

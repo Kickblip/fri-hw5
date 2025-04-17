@@ -3,5 +3,6 @@
         "ranges": "cpp",
         "__locale": "cpp",
         "algorithm": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabledIfIncludesResolve"
 }

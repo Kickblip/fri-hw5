@@ -40,14 +40,14 @@ protected:
         geometry_msgs::msg::TransformStamped &base_link_to_tag1
         );
 
-    //This has an outline, but parts of the implementation are part of the homework.
+    //This has an outline, but parts of the implementation are part of the homework. TODO:
     void computeAndAct();
 
-    //Implementing this is part of the homework.
+    //Implementing this is part of the homework. // TODO:
     double computeDistanceBaseLinkTag1(geometry_msgs::msg::TransformStamped &base_link_to_tag1);
 
     
-    //Implementing this is part of the homework.
+    //Implementing this is part of the homework. TODO:
     Eigen::MatrixXd computeGoToFrameFromBaseLink(
         geometry_msgs::msg::TransformStamped &base_link_to_tag1);
 
