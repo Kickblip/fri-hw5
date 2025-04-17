@@ -58,6 +58,21 @@ void MoveToTarget::copyToGoalPoseAndSend(
     ) {
     RCLCPP_INFO(node_->get_logger(), "Sending goal!");
     geometry_msgs::msg::PoseStamped goal_pose;
+    
+    // idk if these are right
+    goal_pose.orientation.w = goal_pose_relative_to_base_link(3,3);
+    goal_pose.orientation.x = goal_pose_relative_to_base_link(0,3);
+    goal_pose.orientation.y = goal_pose_relative_to_base_link(1,3);
+    goal_pose.orientation.z = goal_pose_relative_to_base_link(2,3);
+
+    goal_pose.position.x = goal_pose_relative_to_base_link(0,3);
+    goal_pose.position.y = goal_pose_relative_to_base_link(1,3);
+    goal_pose.position.z = goal_pose_relative_to_base_link(2,3);
+
+    goal_pose.header.stamp = this->now()
+    
     nav2_msgs::action::NavigateToPose::Goal goal_msg = nav2_msgs::action::NavigateToPose::Goal();
+    goal_msg.pose = goal_pose;
+
     client_->async_send_goal(goal_msg, send_goal_options_);
 }
