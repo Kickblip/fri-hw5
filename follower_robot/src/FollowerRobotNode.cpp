@@ -223,7 +223,7 @@ void FollowerRobotNode::computeAndAct() {
             Send using tf_broadcaster_.
         */
         geometry_msgs::msg::TransformStamped tf1 = matrixToTransform(m_map_to_go_to_, "map", "");;
-        tf_broadcaster_.broadcast(tf1);
+        tf_broadcaster_.sendTransform(tf1);
 
     } catch (const tf2::TransformException &ex) {
         RCLCPP_WARN(this->get_logger(), "Could not transform world -> example_frame: %s", ex.what());
