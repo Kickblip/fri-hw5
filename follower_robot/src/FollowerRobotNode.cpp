@@ -216,15 +216,14 @@ void FollowerRobotNode::computeAndAct() {
                 move_to_target_.copyToGoalPoseAndSend(m_go_to);
             }
         }
-        Eigen::MatrixXd rotation_matrix;
-        geometry_msgs::msg::TransformStamped map_to_go_to = tf2_ros.
-        tf_broadcaster_.sendTransform()
+
         /*
             Fill in the TransformStamped using matrixToTransform.
             Set tf1.header.stamp.
             Send using tf_broadcaster_.
         */
-        geometry_msgs::msg::TransformStamped tf1;
+        geometry_msgs::msg::TransformStamped tf1 = matrixToTransform(m_map_to_go_to_, "map", "");;
+        tf_broadcaster_.broadcast(tf1);
 
     } catch (const tf2::TransformException &ex) {
         RCLCPP_WARN(this->get_logger(), "Could not transform world -> example_frame: %s", ex.what());
