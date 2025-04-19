@@ -86,6 +86,12 @@ Eigen::MatrixXd FollowerRobotNode::computeGoToFrameFromBaseLink(
         The class should return a 4x4 Rigid Transformation.
     */
     Eigen::MatrixXd transform = Eigen::MatrixXd::Identity(4, 4);
+    Eigen::MatrixXd tagTransform = transformToMatrix(base_link_to_tag1);
+    double theta = std::atan2(tagTransform(1, 0), tagTransform(0, 0));
+    Eigen::Matrix3d rotation_matrix = Eigen::AngleAxisd(theta, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    transform.block<3, 3>(0, 0) = rotation_matrix;
+    Eigen::Vector2d offset = follow_distance_ * Eigen::Vector2d(std::cos(theta), std::sin(theta));
+    transform.block<2, 1>(0, 3) = tagTransform.block<2, 1>(0, 3) - offset;
 
     /*
 
