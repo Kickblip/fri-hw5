@@ -137,7 +137,10 @@ double FollowerRobotNode::computeDistanceBaseLinkTag1(
 
         Distance is just l2 norm or Euclidean distance. You've got this.
     */
-    double distance = 0.0;
+    double x = base_link_to_tag1.transform.translation.x;
+    double y = base_link_to_tag1.transform.translation.y;
+    double z = base_link_to_tag1.transform.translation.z;
+    double distance = std::sqrt(x*x + y*y + z*z);
     RCLCPP_INFO_STREAM(this->get_logger(),
         "distance:  " << distance << endl);
     return distance;  
