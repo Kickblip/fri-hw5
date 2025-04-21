@@ -11,8 +11,8 @@
         You can use .block to refer to to the upper-left 3x3 submatrix of your
             4x4 rigid transformation.
 */
-Eigen::MatrixXd transformToMatrix(const geometry_msgs::msg::TransformStamped &transform) {
-    Eigen::MatrixXd matrix = Eigen::MatrixXd::Identity(4,4);
+Eigen::Matrix4d transformToMatrix(geometry_msgs::msg::TransformStamped &transform) {
+    Eigen::Matrix4d matrix = Eigen::Matrix4d::Identity(4,4);
     matrix(0,3) = transform.transform.translation.x;
     matrix(1,3) = transform.transform.translation.y;
     matrix(2,3) = transform.transform.translation.z;
@@ -22,7 +22,7 @@ Eigen::MatrixXd transformToMatrix(const geometry_msgs::msg::TransformStamped &tr
                          transform.transform.rotation.x,
                          transform.transform.rotation.y,
                          transform.transform.rotation.z);
-    Eigen::MatrixXd rotation_matrix = q.toRotationMatrix();
+    Eigen::Matrix3d rotation_matrix = q.toRotationMatrix();
 
     matrix.block<3,3>(0,0) = rotation_matrix;
 
@@ -42,7 +42,7 @@ Eigen::MatrixXd transformToMatrix(const geometry_msgs::msg::TransformStamped &tr
     
 */
 geometry_msgs::msg::TransformStamped matrixToTransform(
-    const Eigen::MatrixXd &matrix, const std::string &parent_frame, const std::string &child_frame) {
+    Eigen::Matrix4d &matrix, std::string &parent_frame, std::string &child_frame) {
     geometry_msgs::msg::TransformStamped transform_msg;
     transform_msg.header.frame_id = parent_frame;
     transform_msg.child_frame_id = child_frame;
@@ -52,7 +52,7 @@ geometry_msgs::msg::TransformStamped matrixToTransform(
     transform_msg.transform.translation.z = matrix(2,3);
     transform_msg.transform.rotation.w = matrix(3,3);
 
-    Eigen::MatrixXd rotation_matrix = matrix.block<3,3>(0,0);
+    Eigen::Matrix3d rotation_matrix = matrix.block<3,3>(0,0);
 
     Eigen::Quaterniond q(rotation_matrix);
 
