@@ -84,14 +84,34 @@ Eigen::MatrixXd FollowerRobotNode::computeGoToFrameFromBaseLink(
 
         You can find how to make a 4x4 Rigid Transformation in the class notes.
         The class should return a 4x4 Rigid Transformation.
+        [ 
+            R   R   R   X
+            R   R   R   Y
+            R   R   R   Z
+            0   0   0   1
+        ]
     */
+
     Eigen::MatrixXd transform = Eigen::MatrixXd::Identity(4, 4);
+
+    double x = base_link_to_tag1.transform.translation.x;
+    double y = base_link_to_tag1.transform.translation.y;
+    
     Eigen::MatrixXd tagTransform = transformToMatrix(base_link_to_tag1);
-    double theta = std::atan2(tagTransform(1, 0), tagTransform(0, 0));
+
+    double theta = std::atan2(y, x);
     Eigen::Matrix3d rotation_matrix = Eigen::AngleAxisd(theta, Eigen::Vector3d::UnitZ()).toRotationMatrix();
     transform.block<3, 3>(0, 0) = rotation_matrix;
-    Eigen::Vector2d offset = follow_distance_ * Eigen::Vector2d(std::cos(theta), std::sin(theta));
-    transform.block<2, 1>(0, 3) = tagTransform.block<2, 1>(0, 3) - offset;
+
+    Eigen::Vector2d robot_position = Eigen::Vector2d(x, y);
+    double robot_distance = robot_position.norm();
+    double robot_follow_length = robot_distance - follow_distance_;
+    Eigen::Vector2d robot_position_normalized = robot_position / robot_distance;
+    Eigen::Vector2d robot_follow_position = robot_follow_length * robot_position_normalized;
+
+    transform(0,3) = robot_follow_position(0);
+    transform(1,3) = robot_follow_position(1);
+    transform(2,3) = 0.0;
 
     /*
 
@@ -173,7 +193,7 @@ bool FollowerRobotNode::theTagMoved(
                 (m_map_to_tag_1.block<3,1>(0,3) - 
                 m_map_to_tag_1_prev_.block<3,1>(0,3)).norm();
 
-            // RCLCPP_INFO_STREAM(this->get_logger(), "THE TAG MOVED:  " << tag_motion << endl);
+            RCLCPP_INFO_STREAM(this->get_logger(), "THE TAG MOVED:  " << tag_motion << endl);
             tagMotionConfirmed = tag_motion > tag_motion_threshold_;
             if(tagMotionConfirmed) m_map_to_tag_1_prev_ = m_map_to_tag_1;
         }
@@ -204,8 +224,8 @@ bool FollowerRobotNode::theTagMoved(
 void FollowerRobotNode::computeAndAct() {
     try{
         //Look up the transform between map and base_link here
-        geometry_msgs::msg::TransformStamped map_to_base_link = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZer);
-        geometry_msgs::msg::TransformStamped base_link_to_tag1 = tf_buffer_.lookupTransform("base_link", "tag1", tf2::TimePointZer);
+        geometry_msgs::msg::TransformStamped map_to_base_link = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
+        geometry_msgs::msg::TransformStamped base_link_to_tag1 = tf_buffer_.lookupTransform("base_link", "tag1", tf2::TimePointZero);
         Eigen::MatrixXd m_map_to_go_to_;
         if(theTagMoved(map_to_base_link, base_link_to_tag1)) {
             RCLCPP_INFO_STREAM(this->get_logger(), "THE TAG MOVED" << endl);
@@ -221,7 +241,6 @@ void FollowerRobotNode::computeAndAct() {
                         the correct pose.
                 */
                 m_map_to_go_to_ = m_map_to_base_link * m_go_to;
-        
                 move_to_target_.copyToGoalPoseAndSend(m_go_to);
             }
         }
@@ -231,7 +250,8 @@ void FollowerRobotNode::computeAndAct() {
             Set tf1.header.stamp.
             Send using tf_broadcaster_.
         */
-        geometry_msgs::msg::TransformStamped tf1 = matrixToTransform(m_map_to_go_to_, "map", "");;
+        geometry_msgs::msg::TransformStamped tf1 = matrixToTransform(m_map_to_go_to_, "map", "tag1");;
+        tf1.header.stamp = this->get_clock()->now();
         tf_broadcaster_.sendTransform(tf1);
 
     } catch (const tf2::TransformException &ex) {
