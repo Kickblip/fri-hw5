@@ -18,15 +18,13 @@ Eigen::MatrixXd transformToMatrix(const geometry_msgs::msg::TransformStamped &tr
     matrix(2,3) = transform.transform.translation.z;
     matrix(3,3) = 1.0; // I think he said in class this is always 1
 
-    // Eigen::Quaterniond q(transform.transform.rotation.w,
-    //                      transform.transform.rotation.x,
-    //                      transform.transform.rotation.y,
-    //                      transform.transform.rotation.z);
-    // Eigen::Matrix3d rotation_matrix = q.toRotationMatrix();
+    Eigen::Quaterniond q(transform.transform.rotation.w,
+                         transform.transform.rotation.x,
+                         transform.transform.rotation.y,
+                         transform.transform.rotation.z);
+    Eigen::Matrix3d rotation_matrix = q.toRotationMatrix();
 
-    // matrix.block<3,3>(0,0) = rotation_matrix;
-
-    matrix.block<3,3>(0,0) = Eigen::Quaterniond(transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z).toRotationMatrix();
+    matrix.block<3,3>(0,0) = rotation_matrix;
 
     return matrix;
 }
@@ -52,7 +50,6 @@ geometry_msgs::msg::TransformStamped matrixToTransform(
     transform_msg.transform.translation.x = matrix(0,3);
     transform_msg.transform.translation.y = matrix(1,3);
     transform_msg.transform.translation.z = matrix(2,3);
-    // transform_msg.transform.rotation.w = matrix(3,3);
 
     Eigen::Matrix3d rotation_matrix = matrix.block<3,3>(0,0);
 

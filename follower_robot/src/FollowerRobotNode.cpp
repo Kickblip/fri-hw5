@@ -226,7 +226,6 @@ void FollowerRobotNode::computeAndAct() {
         //Look up the transform between map and base_link here
         geometry_msgs::msg::TransformStamped map_to_base_link = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
         geometry_msgs::msg::TransformStamped base_link_to_tag1 = tf_buffer_.lookupTransform("base_link", "tag1", tf2::TimePointZero);
-        // Eigen::MatrixXd m_map_to_go_to_;
         if(theTagMoved(map_to_base_link, base_link_to_tag1)) {
             RCLCPP_INFO_STREAM(this->get_logger(), "THE TAG MOVED" << endl);
             double distance = computeDistanceBaseLinkTag1(base_link_to_tag1);
